@@ -1,228 +1,194 @@
-local Tetros = {}
+scene = "menu"
 
-Tetros[1] = { {
-  {0,0,0,0},
-  {0,0,0,0},
-  {1,1,1,1},
-  {0,0,0,0}
+local game = require('game')
+local menuSin = 0
+local font
+local Tetros = {
+  {
+    { 0,1,0 },
+    { 1,1,0 },
+    { 0,1,0 }
   },
   {
-  {0,0,1,0},
-  {0,0,1,0},
-  {0,0,1,0},
-  {0,0,1,0}
-  } }
+    { 0,0,1,0 },
+    { 0,0,1,0 },
+    { 0,0,1,0 },
+    { 0,0,1,0 }
+  },
+  {
+    { 1,1 },
+    { 1,1 }
+  },
+  {
+    { 1,0,0 },
+    { 1,1,0 },
+    { 0,1,0 }
+  },
+  {
+    { 0,1,0 },
+    { 1,1,0 },
+    { 1,0,0 }
+  },
+  {
+    { 1,1,0 },
+    { 0,1,0 },
+    { 0,1,0 }
+  },
+  {
+    { 0,1,0 },
+    { 0,1,0 },
+    { 1,1,0 }
+  }
+}
 
-Tetros[2] = { {
-  {0,0,0,0},
-  {0,1,1,0},
-  {0,1,1,0},
-  {0,0,0,0}
-  } }
+local colors = {
+  {255, 0, 0},   -- Rouge
+  {0, 255, 0},   -- Vert
+  {0, 0, 255},   -- Bleu
+  {255, 165, 0}, -- Orange
+  {0, 191, 255}, -- Bleu clair
+  {255, 105, 180}, -- Rose
+  {148, 0, 211}, -- Violet
+  {255, 255, 255}  -- Blanc
+}
 
-Tetros[3] = { {
-  {0,0,0},
-  {1,1,1},
-  {0,0,1},
-  },
-  {
-  {0,1,0},
-  {0,1,0},
-  {1,1,0},
-  },
-  {
-  {1,0,0},
-  {1,1,1},
-  {0,0,0},
-  },
-  {
-  {0,1,1},
-  {0,1,0},
-  {0,1,0},
-  } }
+fonts = {}
+fonts.path = 'assets/fonts/content.ttf'
+fonts.secondPath = 'assets/fonts/menuContent.ttf'
+fonts.thirdPath = 'assets/fonts/gui.ttf'
+fonts.fourPath = 'assets/fonts/normal.ttf'
 
-Tetros[4] = { {
-  {0,0,0},
-  {0,1,1},
-  {1,1,0},
-  },
-  {
-  {0,1,0},
-  {0,1,1},
-  {0,0,1},
-  },
-  {
-  {0,0,0},
-  {0,1,1},
-  {1,1,0},
-  },
-  {
-  {0,1,0},
-  {0,1,1},
-  {0,0,1},
-  } }
 
-  local currentTetros = {}
-  currentTetros.position = { x = 0, y = 0 }
-  local currentRotation = 1
-local dropSpeed = 1
-local timerDrop = 0
+fonts.score = love.graphics.newFont(fonts.path, 80)
+fonts.option = love.graphics.newFont(fonts.thirdPath, 30)
+fonts.title = love.graphics.newFont(fonts.fourPath, 50)
+fonts.author = love.graphics.newFont(fonts.fourPath, 10)
+fonts.rules = love.graphics.newFont(fonts.path, 30)
+menu = {}
+menu.title = {}
+menu.title.text = 'TETRIS'
+menu.title.y = 80
+menu.color = {}
+menu.initialColor = {.5, .5, 1}
+menu.hoverColor = {.1, .2, 2}
 
-local Grid = {}
-Grid.width = 10
-Grid.height = 20
-Grid.cellSize = 0
-Grid.cells = {}
+menu.option = {}
+
+
+menu.option = {}
+
+menu.option[1] = {}
+menu.option[1].y = 180
+menu.option[1].text = "Joueur vs Joueur"
+menu.option[1].underlineColor = {.5, .5, 1}
+
+
+menu.option[2] = {}
+menu.option[2].y = 250
+menu.option[2].text = "Bot vs Joueur"
+menu.option[2].underlineColor = menu.initialColor
+
+
+menu.option[3] = {}
+menu.option[3].y = 320
+menu.option[3].text = "Regles du jeu"
+menu.option[3].underlineColor = menu.initialColor
+
+
+menu.option[4] = {}
+menu.option[4].y = 390
+menu.option[4].text = "Quitter"
+menu.option[4].underlineColor = menu.initialColor
+menu.option.underlineWidth = 50
+
+local isInRulesPage = false
+rulesContent = "Règles du jeu Pong :\n\n" ..
+               "Deux modes de jeu sont disponibles :\n\n" ..
+               "1. Joueur contre Joueur : Utilisez les touches Z (monter) et S (descendre) pour le joueur de gauche, et les touches fléchées Haut et Bas pour le joueur de droite.\n\n" ..
+               "2. Bot contre Joueur : Vous jouez contre un bot. Utilisez les touches fléchées Haut et Bas pour le joueur de droite. Le bot est à gauche.\n\n" ..
+                "3. Le but du jeu est de faire passer la balle dans le camp adverse. Le score s'affiche en haut. Bon jeu !!\n\n"
+
 
 function love.load()
-    spawnTetros()
-end
+font = love.graphics.newFont('assets/fonts/normal.ttf', 50)
+    love.graphics.setFont(font)
+    love.window.setTitle("TETRIS - Développé par Lucarno")
+    screen_width = love.graphics.getWidth()
+    screen_height =  love.graphics.getHeight()
+    cursor = {}
+    cursor.hand = love.mouse.getSystemCursor('hand')
+    cursor.arrow = love.mouse.getSystemCursor('arrow')
 
-function love.keypressed(key)
-    if key == "right" then
-        currentTetros.position.x = currentTetros.position.x + 1
-      end
-      if key == "left" then
-        currentTetros.position.x = currentTetros.position.x - 1
-      end
-
-      if key == "up" then
-        currentTetros.rotation = currentTetros.rotation + 1
-        if currentTetros.rotation > #Tetros[currentTetros.shapeid] then
-          currentTetros.rotation = 1
-        end
-      end
+    game.load()
 end
 
 function love.update(dt)
-
-    timerDrop = timerDrop - dt
-  if timerDrop <= 0 then
-    currentTetros.position.y = currentTetros.position.y + 1
-    timerDrop = dropSpeed
-  end
-    updateMenu(dt)
-    updatePlay(dt)
-    updateGameover(dt)
+dt = math.min(dt, 1/60)
+game.update()
+menuSin = menuSin + 5*60*dt
 end
+
+
 
 function love.draw()
-    currentTetros.shapeid = 1
-    local Shape = Tetros[currentTetros.shapeid][currentRotation]
-    currentRotation = currentRotation + 1
-    if currentRotation > #Tetros[currentTetros.shapeid] then
-        currentRotation = 1
+    if scene == "menu" then
+        drawMenu()
+    elseif scene == "game" then
+        game.draw()
     end
-    screen_height = love.graphics.getHeight()
-    screen_width = love.graphics.getWidth()
-    initGrid()
-    drawGrid()
-    drawShape(Shape, 1, 1)
-
-
-   
-    currentTetros.shapeid = 1
-    currentTetros.rotation = 1
-    currentTetros.position = { x=0, y=0 }
 
 end
 
-function inputMenu(dt)
-  
-end
-
-function inputPlay(dt)
-   
-end
-
-function inputGameover(dt)
-  
-end
-
-function updateMenu(dt)
-   
-end
-
-function updatePlay(dt)
-    
-end
-
-function updateGameover(dt)
-    
-end
-
-function drawMenu(dt)
-    
-end
-
-function drawPlay(dt)
-   
-end
-
-function drawGameover(dt)
-   
-end
-
-
-function initGrid()
-    local h = screen_height / Grid.height
-    Grid.cellSize = h
-    Grid.offsetX = (screen_width / 2) - (h*Grid.width) / 2
-    Grid.offsetY = 0
-  
-    Grid.cells = {}
-    for l=1,Grid.height do
-      Grid.cells[l] = {}
-      for c=1,Grid.width do
-        Grid.cells[l][c] = 0
-      end
+function love.keypressed(key)
+    if scene == 'menu' and key == 'return' then
+        scene = 'game'
     end
-  end
+    game.keypressed(key)
+end
 
-  function drawGrid()
-    local h = Grid.cellSize
-    local w = h
-    local x,y
-    love.graphics.setColor(1,1,1,0.2)
-    for l=1,Grid.height do
-      for c=1,Grid.width do
-        x = (c-1)*w
-        y = (l-1)*h
-        x = x + Grid.offsetX
-        y = y + Grid.offsetY
-        love.graphics.rectangle("fill", x, y, w-1, h-1)
-      end
-    end
-  end
-
-  function drawShape(pShape, pColumn, pLine)
-    love.graphics.setColor(1,0,0)
-    for l=1,#pShape do
-    for c=1,#pShape[l] do
-      -- Calcule la position initiale de la case
-      local x = (c-1) * Grid.cellSize
-      local y = (l-1) * Grid.cellSize
-      -- Ajoute la position de la pièce
-      x = x + (pColumn-1) * Grid.cellSize
-      y = y + (pLine-1) * Grid.cellSize
-      -- Ajoute l'offset de la grille
-      x = x + Grid.offsetX
-      y = y + Grid.offsetY
-      if pShape[l][c] == 1 then
-        love.graphics.rectangle("fill", x, y, Grid.cellSize - 1, Grid.cellSize - 1)
-      end
+function love.mousepressed(mouseX, mouseY, button)
+    if scene == 'menu' and button == 1 then
+        if mouseY >= menu.option[1].y and mouseY <= menu.option[1].y + 30 and mouseX > screen_width/2 - 150 and mouseX < screen_width/2 + 150 then
+            game.gamemode = 1
+            reset()
+            scene = 'game'
+            love.mouse.setCursor(cursor.arrow)
+        elseif mouseY >= menu.option[2].y and mouseY <= menu.option[2].y + 30 and mouseX > screen_width/2 - 150 and mouseX < screen_width/2 + 150 then
+           game.gamemode = 2
+           reset()
+            scene = 'game'
+            love.mouse.setCursor(cursor.arrow)
+        elseif mouseY >= menu.option[3].y and mouseY <= menu.option[3].y + 30 and mouseX > screen_width/2 - 150 and mouseX < screen_width/2 + 150 then
+            scene = 'rules'
+            isInRulesPage = true
+            love.mouse.setCursor(cursor.arrow)
+        elseif mouseY >= menu.option[4].y and mouseY <= menu.option[4].y + 30 and mouseX > screen_width/2 - 150 and mouseX < screen_width/2 + 150 then
+            love.event.quit()
+        end
     end
 end
+
+function drawMenu()
+  local sMessage = "LUCARNO TETRIS"
+  local w = font:getWidth(sMessage)
+  local h = font:getHeight(sMessage)
+  local x = (screen_width - w)/2
+  local y = 0
+
+  for c=1,sMessage:len() do
+    local char = string.sub(sMessage,c,c)
+    y = math.sin((x+menuSin)/50)*30
+    local color = colors[c % #colors + 1] -- Utilisez une couleur du tableau 'colors'
+    love.graphics.setColor(color[1] * 255, color[2] * 255, color[3] * 255)
+    love.graphics.print(char, x, y + (screen_height - h)/2.5)
+    x = x + font:getWidth(char)
   end
 
-  function spawnTetros()
-    local new = math.random(1, #Tetros)
-    currentTetros.shapeid = 1
-    currentTetros.rotation = 1
-    local tetrosWidth = 
-  #Tetros[currentTetros.shapeid][currentTetros.rotation][1]
-    currentTetros.position.x =
-  (math.floor((Grid.width - tetrosWidth) / 2)) + 1
-    currentTetros.position.y = 1
-    timerDrop = dropSpeed
-  end
+  sMessage = "PRESS ENTER"
+  local w = font:getWidth(sMessage)
+  local h = font:getHeight(sMessage)
+  local color = colors[8] -- Utilisez la dernière couleur du tableau 'colors'
+  love.graphics.setColor(color[1] * 255, color[2] * 255, color[3] * 255)
+  love.graphics.print(sMessage, (screen_width - w)/2, (screen_height - h)/1.5)
+end
+
