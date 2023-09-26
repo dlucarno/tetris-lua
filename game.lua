@@ -3,6 +3,8 @@ local game = {}
 local blockSize = 30
 local areaWidth = 10
 local areaHeight = 20
+local font
+local menuSin = 0
 
 local shapes = {
   {
@@ -50,7 +52,7 @@ local colors = {
   {0, 191, 255}, -- Bleu clair
   {255, 105, 180}, -- Rose
   {148, 0, 211}, -- Violet
-  {255, 255, 255}  -- Blanc
+  {255, 255, 255}  -- blanc
 }
   
 local shape
@@ -74,6 +76,9 @@ local collectTimer
 local collectInterval = 0.15
 
 function game.load()
+    font = love.graphics.newFont('assets/fonts/gui.ttf', 50)
+    love.graphics.setFont(font)
+    
   restart()
 end
 
@@ -351,6 +356,7 @@ end
 
 function game.update(dt)
     dt =  1/100
+    menuSin = menuSin + 5*60*dt
   if gameOver then return end
   
   controlTimer = controlTimer + dt
@@ -418,7 +424,33 @@ function drawShape(s, x, y)
   end
 end
 
+function drawMenu()
+    local sMessage = "LUCARNO TETRIS"
+    local w = font:getWidth(sMessage)
+    local h = font:getHeight(sMessage)
+    local x = (screen_width - w)/2
+    local y = 0
+  
+    for c=1,sMessage:len() do
+      local char = string.sub(sMessage,c,c)
+      y = math.sin((x+menuSin)/50)*30
+      local color = colors[c % #colors + 1] -- Utilisez une couleur du tableau 'colors'
+      love.graphics.setColor(color[1] * 255, color[2] * 255, color[3] * 255)
+      love.graphics.print(char, x, y + (screen_height - h)/2.5)
+      x = x + font:getWidth(char)
+    end
+  
+    sMessage = "PRESS ENTER"
+    local w = font:getWidth(sMessage)
+    local h = font:getHeight(sMessage)
+    local color = colors[8] -- Utilisez la dernière couleur du tableau 'colors'
+    love.graphics.setColor(color[1] * 255, color[2] * 255, color[3] * 255)
+    love.graphics.print(sMessage, (screen_width - w)/2, (screen_height - h)/1.5)
+end
+  
+
 function drawArea()
+    
   for j = 1, areaHeight do
     for i = 1, areaWidth do
       if blocks[j][i] == 0 then
@@ -453,7 +485,6 @@ function drawGUI()
 end
 
 function game.draw()
-    
   if gameOver then
     local sw, sh = love.graphics.getDimensions()
     local sw2, sh2 = sw / 2, sh / 2
@@ -472,5 +503,6 @@ function game.draw()
     drawGUI()
   end
 end
+
 
 return game
