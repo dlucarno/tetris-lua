@@ -76,6 +76,7 @@ local collectTimer
 local collectInterval = 0.15
 
 function game.load()
+    sndLoose = love.audio.newSource("assets/musics/tetris-gameboy-04.mp3", "static")
     font = love.graphics.newFont('assets/fonts/gui.ttf', 50)
     love.graphics.setFont(font)
     
@@ -406,23 +407,31 @@ function game.update(dt)
 end
 
 function drawBlock(t, x, y)
-  love.graphics.setColor(colors[t][1] * 120, colors[t][2] * 120, colors[t][3] * 120)
-  love.graphics.rectangle("fill", blockSize * x, blockSize * y, blockSize, blockSize)
-
-  love.graphics.setColor(colors[t][1] * 255, colors[t][2] * 255, colors[t][3] * 255)
-  love.graphics.rectangle("fill", blockSize * x + 2, blockSize * y + 2, blockSize - 4, blockSize - 4)
-
-  love.graphics.setColor(colors[t][1] * 160, colors[t][2] * 160, colors[t][3] * 160)
-  love.graphics.rectangle("fill", blockSize * x + 6, blockSize * y + 6, blockSize - 12, blockSize - 12)
-end
-
-function drawShape(s, x, y)  
-  for j = 1, s.length do
-    for i = 1, s.length do
-      if s.data[j][i] == 1 then drawBlock(s.type, x + i - 1, y + j - 1) end
+    local r, g, b = colors[t][1], colors[t][2], colors[t][3]
+  
+    love.graphics.setColor(r * 120, g * 120, b * 120)
+    love.graphics.rectangle("fill", blockSize * x, blockSize * y, blockSize, blockSize)
+    
+    -- Dessiner la bordure en bas
+    love.graphics.setColor(r * 255, g * 255, b * 255)
+    love.graphics.rectangle("fill", blockSize * x, blockSize * y + blockSize - 2, blockSize, 2)
+    
+    -- Dessiner la bordure à droite
+    love.graphics.setColor(r * 255, g * 255, b * 255)
+    love.graphics.rectangle("fill", blockSize * x + blockSize - 2, blockSize * y, 2, blockSize)
+    
+    -- Dessiner un coin en bas à droite
+    love.graphics.setColor(r * 255, g * 255, b * 255)
+    love.graphics.rectangle("fill", blockSize * x + blockSize - 4, blockSize * y + blockSize - 4, 4, 4)
+  end
+  
+  function drawShape(s, x, y)  
+    for j = 1, s.length do
+      for i = 1, s.length do
+        if s.data[j][i] == 1 then drawBlock(s.type, x + i - 1, y + j - 1) end
+      end
     end
   end
-end
 
 function drawMenu()
     local sMessage = "LUCARNO TETRIS"
@@ -486,6 +495,8 @@ end
 
 function game.draw()
   if gameOver then
+    backgroundGame = love.graphics.newImage("assets/img/bg2.jpg")
+    love.graphics.draw(backgroundGame, 0, 0, 0, screen_width / backgroundGame:getWidth(), screen_height / backgroundGame:getHeight())
     local sw, sh = love.graphics.getDimensions()
     local sw2, sh2 = sw / 2, sh / 2
     
@@ -495,8 +506,9 @@ function game.draw()
   
     love.graphics.setColor(180, 180, 180)
     love.graphics.printf("Score: " .. score, 0, sh2 - blockSize * 1.5, sw, "center")
-    love.graphics.printf("Lines: " .. lines, 0, sh2 - blockSize * 0.5, sw, "center")
+   
     love.graphics.printf("Level: " .. level, 0, sh2 + blockSize * 0.5, sw, "center")
+    
   else
     drawArea()
     drawShape(shape, shapePosX, shapePosY)

@@ -12,7 +12,6 @@ sndGame = love.audio.newSource("assets/musics/tetris-gameboy-02.mp3", "stream")
 
 function love.load()
     backgroundMenu = love.graphics.newImage("assets/img/bg3.jpg")
-    backgroundGame = love.graphics.newImage("assets/img/bg1.jpg")
     love.window.setTitle("TETRIS - Développé par Lucarno")
     screen_width = love.graphics.getWidth()
     screen_height =  love.graphics.getHeight()
@@ -40,7 +39,6 @@ function love.draw()
       drawMenu()
   elseif scene == "game" then
       -- Arrêter la musique lorsque vous changez de scène
-      love.graphics.draw(backgroundGame, 0, 0, 0, screen_width / backgroundGame:getWidth(), screen_height / backgroundGame:getHeight())
       love.audio.stop()
       game.draw()
   
