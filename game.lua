@@ -76,6 +76,7 @@ local collectTimer
 local collectInterval = 0.15
 
 function game.load()
+    soundLineComplete = love.audio.newSource("assets/sounds/lineComplete.mp3", "static")
     sndLoose = love.audio.newSource("assets/musics/tetris-gameboy-04.mp3", "static")
     font = love.graphics.newFont('assets/fonts/gui.ttf', 50)
     love.graphics.setFont(font)
@@ -227,6 +228,7 @@ function collectBlocks()
   for j = 1, areaHeight do
     for i = 1, areaWidth do blocks[j][i] = temp[j][i] end
   end
+  
 end
 
 function createShape(t, r)

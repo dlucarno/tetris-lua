@@ -8,7 +8,7 @@ fonts.thirdPath = 'assets/fonts/gui.ttf'
 fonts.fourPath = 'assets/fonts/normal.ttf'
 sndMenu = love.audio.newSource("assets/musics/tetris-gameboy-01.mp3", "static")
 sndGame = love.audio.newSource("assets/musics/tetris-gameboy-02.mp3", "stream")
-
+local soundLineComplete
 
 function love.load()
     backgroundMenu = love.graphics.newImage("assets/img/bg3.jpg")
