@@ -413,18 +413,19 @@ function drawBlock(t, x, y)
   
     love.graphics.setColor(r * 120, g * 120, b * 120)
     love.graphics.rectangle("fill", blockSize * x, blockSize * y, blockSize, blockSize)
-    
+    love.graphics.setColor(255, 255, 255)
     -- Dessiner la bordure en bas
     love.graphics.setColor(r * 255, g * 255, b * 255)
     love.graphics.rectangle("fill", blockSize * x, blockSize * y + blockSize - 2, blockSize, 2)
-    
+    love.graphics.setColor(255, 255, 255)
     -- Dessiner la bordure à droite
     love.graphics.setColor(r * 255, g * 255, b * 255)
     love.graphics.rectangle("fill", blockSize * x + blockSize - 2, blockSize * y, 2, blockSize)
-    
+    love.graphics.setColor(255, 255, 255)
     -- Dessiner un coin en bas à droite
     love.graphics.setColor(r * 255, g * 255, b * 255)
     love.graphics.rectangle("fill", blockSize * x + blockSize - 4, blockSize * y + blockSize - 4, 4, 4)
+    love.graphics.setColor(255, 255, 255)
   end
   
   function drawShape(s, x, y)  
@@ -496,8 +497,9 @@ function drawGUI()
 end
 
 function game.draw()
+
+  backgroundGame = love.graphics.newImage("assets/img/bg2.jpg")
   if gameOver then
-    backgroundGame = love.graphics.newImage("assets/img/bg2.jpg")
     love.graphics.draw(backgroundGame, 0, 0, 0, screen_width / backgroundGame:getWidth(), screen_height / backgroundGame:getHeight())
     local sw, sh = love.graphics.getDimensions()
     local sw2, sh2 = sw / 2, sh / 2
@@ -512,6 +514,8 @@ function game.draw()
     love.graphics.printf("Level: " .. level, 0, sh2 + blockSize * 0.5, sw, "center")
     
   else
+    
+    love.graphics.draw(backgroundGame, 0, 0, 0, screen_width / backgroundGame:getWidth(), screen_height / backgroundGame:getHeight())
     drawArea()
     drawShape(shape, shapePosX, shapePosY)
     drawGUI()
